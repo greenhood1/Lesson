@@ -68,6 +68,26 @@ th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}
 @keyframes ltr{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
 .fl{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;padding:10px 20px 36px;font-size:.85rem;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.ticker span{animation:none;display:block;text-align:center;white-space:normal}}
+input[type=radio]{width:auto;display:inline;margin:0 10px 0 0}
+.qo{font-weight:400;margin:0 0 6px;display:block}
+.faq details{margin-bottom:8px}
+#board{display:none}#board.on{display:block}
+.bar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px}
+.bar select{max-width:100%;padding:.6em;border:1.5px solid var(--line);border-radius:8px;background:var(--panel);color:var(--ink)}
+.bar .btn{padding:.5em .9em}
+.btn.on{background:var(--yel);color:#14213D;border-color:var(--yel)}
+.sw{width:30px;height:30px;border-radius:50%;border:2px solid var(--line);padding:0}
+.sw.sel{border-color:#fff;box-shadow:0 0 0 2px var(--yel)}
+.bwork{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.bwork textarea{min-height:340px;font:14px/1.5 ui-monospace,Menlo,Consolas,monospace;resize:vertical;tab-size:2}
+.stage{position:relative;min-height:340px;border:1.5px solid var(--line);border-radius:12px;overflow:hidden;background:#fff}
+.stage iframe{position:absolute;inset:0;width:100%;height:100%;min-height:0}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;touch-action:none}
+.stage.wb{background:var(--panel)}
+.stage.wb iframe{visibility:hidden}
+#board.full{position:fixed;inset:0;z-index:100;overflow:auto;background:var(--bg);padding:calc(env(safe-area-inset-top,0px) + 12px) 14px 20px}
+#board.full .bwork textarea,#board.full .stage{min-height:55vh}
+@media (max-width:700px){.bwork{grid-template-columns:1fr}}
 @media (max-width:700px){.lab{grid-template-columns:1fr}.lab>div+div{border-left:0;border-top:1.5px solid var(--line)}}
 </style>
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-120EGX7CNF"></script>
@@ -82,7 +102,31 @@ function track(n,p){try{gtag("event",n,p||{})}catch(e){}}
 <body>
 <div class="promo" id="promoBar"></div>
 <div class="wrap">
-<nav><span class="brand"><span class="logo">EV</span>Ebene-Vento Technology</span><a href="#lessons">Lessons</a><a href="#tutoring">Tutoring</a><a href="#free">Free spots</a><a href="#contact">Contact</a></nav>
+<nav><span class="brand"><span class="logo">EV</span>Ebene-Vento Technology</span><a href="#lessons">Lessons</a><a href="#tutoring">Tutoring</a><a href="#free">Free spots</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></nav>
+
+<section id="board">
+<h2>Lecture Board <span class="muted" style="font-size:1rem;font-family:'IBM Plex Sans',sans-serif;font-weight:400">(admin only)</span></h2>
+<div class="bar">
+<select id="bsel" aria-label="Choose lesson"></select>
+<button class="btn alt" id="bwb">Whiteboard</button>
+<button class="btn" id="bpresent">Present</button>
+<a class="btn alt" href="#admin">Back to admin</a>
+</div>
+<div class="bar">
+<button class="btn alt" id="bpen">Pen: off</button>
+<span id="cols" style="display:flex;gap:6px"></span>
+<select id="bsz" aria-label="Pen size"><option value="3">Thin</option><option value="6" selected>Medium</option><option value="12">Thick</option></select>
+<button class="btn alt" id="ber">Eraser</button>
+<button class="btn alt" id="bun">Undo</button>
+<button class="btn alt" id="bclr">Clear drawing</button>
+<button class="btn alt" id="bsave">Save drawing</button>
+</div>
+<div class="bwork">
+<textarea id="bcode" spellcheck="false" aria-label="Board code"></textarea>
+<div class="stage" id="bstage"><iframe id="bout" sandbox title="Board result"></iframe><canvas id="bcv"></canvas></div>
+</div>
+<label style="margin-top:14px">Notes for this lesson<textarea id="bnotes" rows="6" placeholder="Type your teaching notes here. They save on this device only."></textarea></label>
+</section>
 
 <div class="hero">
 <h1>Learn to build <em>websites.</em></h1>
@@ -95,16 +139,22 @@ function track(n,p){try{gtag("event",n,p||{})}catch(e){}}
 </div>
 
 <section id="lessons">
-<h2>Your 6 lessons</h2>
-<p class="muted">Work through the lessons in order. Press “Try it” to load the example into the editor above, then mark the lesson complete to unlock the next one.</p>
+<h2>Your lessons</h2>
+<p class="muted">Work through the lessons in order. Press “Try it” to load the example into the editor above, take the short quiz, then mark the lesson complete to unlock the next one.</p>
 <p class="muted" id="prog" style="margin-bottom:6px"></p>
 <div class="barw"><div id="bar"></div></div>
 <div id="lessonList"></div>
 </section>
 
+<section id="about">
+<h2>About Ebene-Vento Technology</h2>
+<p>We build websites and web apps for small businesses, and we teach beginners how to build their own. Our team works with HTML, CSS, JavaScript, PHP, Python and MySQL, plus data analysis and admin support. Our classes are live, practical and beginner friendly.</p>
+</section>
+
 <section id="tutoring">
 <h2>1-on-1 tutoring</h2>
 <div class="plans" id="plans"></div>
+<div class="card" id="pay" style="margin:16px 0"></div>
 <p class="muted">We are a full stack team, so we can also help with JavaScript, PHP, Python and databases.</p>
 </section>
 
@@ -117,6 +167,17 @@ function track(n,p){try{gtag("event",n,p||{})}catch(e){}}
 <button class="btn" type="submit">Claim my free spot</button>
 <p class="muted" style="margin:10px 0 0;font-size:.9rem">This opens WhatsApp with your details filled in. Send the message to confirm.</p>
 </form>
+</section>
+
+<section id="faq" class="faq">
+<h2>Frequently asked questions</h2>
+<details><summary>Do I need any experience?</summary><p>No. The lessons start from zero and go step by step.</p></details>
+<details><summary>What do I need to learn?</summary><p>A phone or computer with internet. You can practise right here in the live editor, with nothing to install.</p></details>
+<details><summary>How are the classes held?</summary><p>Live online on Google Meet or WhatsApp video. We agree a time that suits you when you book.</p></details>
+<details><summary>How do I pay?</summary><p>See “How to pay” in the tutoring section above. Book on WhatsApp first, then pay, then send us your proof of payment.</p></details>
+<details><summary>What if I need to cancel or I am not satisfied?</summary><p>You can reschedule a session if you tell us at least 12 hours before it starts. If you are not happy after your first paid session, tell us within 24 hours and we will refund the sessions you have not used.</p></details>
+<details><summary>How does the free promo work?</summary><p>The first 5 students get one free 1-hour live session. Claim your spot with the form above. Spots are given in the order we receive messages.</p></details>
+<details><summary>How long will it take me to learn?</summary><p>Go at your own pace. Many beginners finish the 12 lessons in a few weeks, especially with live sessions to ask questions.</p></details>
 </section>
 
 <section id="contact">
@@ -134,6 +195,7 @@ function track(n,p){try{gtag("event",n,p||{})}catch(e){}}
 <p id="bad" class="muted" style="margin:10px 0 0"></p>
 </div>
 <div id="panel" style="display:none">
+<p><a class="btn" href="#board">Open Lecture Board</a></p>
 <h3>Students</h3>
 <p class="muted">Saved only in this browser. Add each person who messages you on WhatsApp.</p>
 <form class="card" id="add" style="margin-bottom:16px">
@@ -172,7 +234,8 @@ var CONFIG={
   adminPin:"1234",          /* change this PIN */
   promoSpots:5,             /* free spots offered */
   claimed:0,                /* how many are already taken */
-  freeLessons:6,            /* lessons open to everyone; set 4 to lock 5 and 6 for paying students */
+  freeLessons:12,           /* lessons open to everyone; lower it (e.g. 8) to lock the rest for paying students */
+  payment:{bank:"",accountName:"Ebene-Vento Technology",accountNumber:""},  /* fill in to show payment details on the site */
   plans:[
     {name:"Single session",price:5000,text:"One hour, live, on any HTML or CSS question."},
     {name:"Beginner pack",price:18000,text:"4 sessions from zero to your first finished page."},
@@ -180,12 +243,18 @@ var CONFIG={
   ],
   /* Paste new lessons here, one after another, separated by commas */
   lessons:[
-    {t:"Lesson 1: Your first web page",b:"HTML uses tags to describe content. A tag like <h1> opens a heading and </h1> closes it. Paragraphs use <p>. Every page is built from tags like these.",pr:"Change the heading to your name, then add a second paragraph about your hobbies.",ex:"<h1>Hello, I am Sam</h1>\n<p>This is my first page.</p>\n<p>Add another paragraph below.</p>"},
-    {t:"Lesson 2: Links, lists and forms",b:"Links use <a href=\"...\">. Lists use <ul> with one <li> for each item. Forms collect information with <input> fields and a <button>.",pr:"Add two more list items and a new input asking for a phone number.",ex:"<h2>My favourites</h2>\n<ul>\n  <li>Tea</li>\n  <li>Coffee</li>\n</ul>\n<a href=\"https://example.com\">Visit a site</a>\n\n<h3>Contact me</h3>\n<form>\n  <input placeholder=\"Your name\"><br><br>\n  <input placeholder=\"Your email\"><br><br>\n  <button>Send</button>\n</form>"},
-    {t:"Lesson 3: Styling with CSS",b:"CSS changes how things look. A rule picks an element, then sets properties inside curly braces, such as color, font-size, background and padding. Every element is a box with content, padding, border and margin. This is called the box model.",pr:"Change the background color, then give the paragraph a border and more padding.",ex:"<h1>Styled heading</h1>\n<p>CSS makes pages look good.</p>\n\n<style>\nbody { background: #fff7d6; font-family: Georgia, serif; padding: 16px; }\nh1 { color: tomato; }\np { font-size: 20px; padding: 12px; border: 2px solid tomato; border-radius: 8px; }\n</style>"},
-    {t:"Lesson 4: Layout with Flexbox and Grid",b:"Put display: flex on a container and its children line up in a row. gap adds space between them. display: grid builds rows and columns, and grid-template-columns sets how many columns you get.",pr:"Add a fourth box to each layout, then change the grid to 2 columns.",ex:"<div class=\"row\">\n  <div class=\"box\">One</div>\n  <div class=\"box\">Two</div>\n  <div class=\"box\">Three</div>\n</div>\n\n<div class=\"grid\">\n  <div class=\"box\">A</div>\n  <div class=\"box\">B</div>\n  <div class=\"box\">C</div>\n  <div class=\"box\">D</div>\n  <div class=\"box\">E</div>\n  <div class=\"box\">F</div>\n</div>\n\n<style>\nbody { font-family: sans-serif; padding: 12px; }\n.row { display: flex; gap: 12px; margin-bottom: 16px; }\n.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }\n.box { background: #2F5BEA; color: #fff; padding: 20px; border-radius: 8px; text-align: center; }\n</style>"},
-    {t:"Lesson 5: Responsive design for phones",b:"Most visitors use phones, so pages must fit small screens. Use relative sizes like percentages, and use a media query to change the layout below a certain width. Drag the Result panel narrower, or open the site on your phone, to see the change.",pr:"Change 600px to 900px and see when the boxes stack. Then add a third card.",ex:"<div class=\"cards\">\n  <div class=\"card\">Card one</div>\n  <div class=\"card\">Card two</div>\n</div>\n\n<style>\nbody { font-family: sans-serif; padding: 12px; }\n.cards { display: flex; gap: 12px; }\n.card { flex: 1; background: #FFD23F; padding: 24px; border-radius: 8px; }\n@media (max-width: 600px) {\n  .cards { flex-direction: column; }\n}\n</style>"},
-    {t:"Lesson 6: Final project, build your own website",b:"Now you put everything together. Below is a starter personal website with a header, an about section, a list of services and a footer. Replace the text with your own details, change the colors, and make it yours. When it looks good, ask us how to publish it online.",pr:"Replace the name and services with your own, choose new colors, and add one extra section.",ex:"<header>\n  <h1>Amaka Designs</h1>\n  <p>Affordable logos and flyers in Lagos</p>\n</header>\n\n<section>\n  <h2>About me</h2>\n  <p>I help small businesses look professional.</p>\n</section>\n\n<section>\n  <h2>Services</h2>\n  <ul>\n    <li>Logo design</li>\n    <li>Flyers and posters</li>\n    <li>Social media graphics</li>\n  </ul>\n</section>\n\n<footer>Contact: 0700 000 0000</footer>\n\n<style>\nbody { margin: 0; font-family: sans-serif; color: #14213D; }\nheader { background: #14213D; color: #fff; padding: 28px 20px; }\nheader p { color: #FFD23F; margin: 0; }\nsection { padding: 16px 20px; }\nh2 { color: #2F5BEA; }\nfooter { background: #2F5BEA; color: #fff; padding: 14px 20px; }\n</style>"}
+    {t:"Start here: Introduction to HTML and CSS",b:"HTML and CSS are the two languages every website is built with.\n\nHTML (HyperText Markup Language) is the structure and content: headings, paragraphs, images, links and forms. Think of it as the walls and rooms of a house.\n\nCSS (Cascading Style Sheets) is the design: colors, fonts, spacing and layout. Think of it as the paint, furniture and decoration.\n\nTOOLS YOU NEED\n• A web browser such as Chrome. It reads your code and shows the page.\n• A code editor to write your code. On a computer use VS Code. On a phone use Acode (Android) or Textastic (iPhone).\n• The live editor on this page, where you can practice with nothing to install.\n\nHOW AN HTML TAG WORKS\nMost tags come in pairs: an opening tag <p> and a closing tag </p>, with content between them. Some tags, like <img>, have no closing tag. Attributes add extra information inside the opening tag, for example <a href=\"https://example.com\">.\n\nTAGS YOU WILL USE MOST\n• <html> wraps the whole page\n• <head> holds settings and the <title>\n• <body> holds everything visitors see\n• <h1> to <h6> are headings, <p> is a paragraph\n• <a> is a link, <img> is an image\n• <ul> and <li> make lists\n• <div> groups things so you can style them\n• <form> and <input> collect information\n\nHOW CSS WORKS\nA CSS rule has a selector (what to style), then properties and values inside curly braces: h1 { color: blue; }. You can write CSS inside a <style> tag, inside one tag with the style attribute, or in a separate .css file.\n\nGOOD HABITS\n• Save HTML files with the .html ending, in lowercase, with no spaces\n• Indent your code so it is easy to read\n• Close every tag you open\n• Make small changes and check the result often\n\nHOW TO USE THIS SITE\n1. Read the lesson. 2. Press Try it to load the example into the live editor. 3. Change the code and watch the result. 4. Do the practice task, then press Mark as complete to unlock the next lesson.",pr:"Change the title and heading text, change the heading color to green, then add a link using <a href=\"https://example.com\">.",ex:"<!DOCTYPE html>\n<html>\n<head>\n  <title>My first page</title>\n  <style>\n    body { font-family: sans-serif; padding: 16px; }\n    h1 { color: #2F5BEA; }\n  </style>\n</head>\n<body>\n  <h1>Welcome</h1>\n  <p>This page has a head and a body.</p>\n</body>\n</html>",q:[["What does CSS control?",["The structure of a page","The colors, fonts and layout","The page address"],1],["Which tag holds everything visitors see?",["<head>","<body>","<title>"],1]]},
+    {t:"Lesson 1: Your first web page",b:"Every web page is a text file written in HTML. Headings run from <h1> (largest and most important) to <h6> (smallest). Use <p> for paragraphs, <br> for a line break and <hr> for a horizontal line. Text inside <b> is bold and inside <i> is italic. A comment like <!-- note --> is ignored by the browser, so you can leave reminders to yourself.",pr:"Change the heading to your name, add an <h2>, make one word bold and add your own comment.",ex:"<h1>Hello, I am Sam</h1>\n<h2>Web design student</h2>\n<p>This is my <b>first</b> page.</p>\n<!-- this note is invisible -->\n<hr>\n<p>Add another paragraph below.</p>",q:[["Which heading is the largest?",["<h6>","<h1>","<h3>"],1],["Which tag makes a paragraph?",["<p>","<br>","<hr>"],0]]},
+    {t:"Lesson 2: Links and lists",b:"A link uses <a> with the href attribute holding the address, for example <a href='https://example.com'>. A bulleted list uses <ul>, a numbered list uses <ol>, and every item sits inside <li>. The text between the opening and closing <a> tags is what the visitor clicks.",pr:"Add three more list items and a link to a website you like.",ex:"<h2>Links and lists</h2>\n<a href='https://example.com'>Visit a site</a>\n\n<h3>Shopping</h3>\n<ul>\n  <li>Rice</li>\n  <li>Beans</li>\n</ul>\n\n<h3>Steps</h3>\n<ol>\n  <li>Open the editor</li>\n  <li>Write code</li>\n</ol>",q:[["Which attribute holds a link's address?",["src","href","alt"],1],["Which tag makes a numbered list?",["<ul>","<ol>","<li>"],1]]},
+    {t:"Lesson 3: Images and tables",b:"Images use <img> with src (the file or web address) and alt (a short description for people who cannot see the image). <img> has no closing tag. Tables use <table>, rows use <tr>, header cells use <th> and data cells use <td>. The photo in the example needs an internet connection to appear.",pr:"Add another row to the table and write a better alt text for the image.",ex:"<h2>My gallery</h2>\n<img src='https://picsum.photos/300/150' alt='A random photo'>\n\n<h3>Prices</h3>\n<table border='1' cellpadding='8'>\n  <tr><th>Item</th><th>Price</th></tr>\n  <tr><td>Logo</td><td>₦10,000</td></tr>\n  <tr><td>Flyer</td><td>₦5,000</td></tr>\n</table>",q:[["What does the alt attribute do?",["Sets the image size","Describes the image","Adds a border"],1],["Which tag creates a table row?",["<td>","<tr>","<th>"],1]]},
+    {t:"Lesson 4: Forms",b:"Forms collect information. <form> wraps the fields. <input> makes a box, and its type can be text, email, password or number. <label> names a field, <textarea> is a larger box and <button> is the button. A form needs a server to store what people type, but you can build and style one now.",pr:"Add a phone number field using type='number' and a second button called Cancel.",ex:"<h2>Book a class</h2>\n<form>\n  <label>Name<br><input type='text' placeholder='Your name'></label><br><br>\n  <label>Email<br><input type='email'></label><br><br>\n  <label>Message<br><textarea rows='3'></textarea></label><br><br>\n  <button>Send</button>\n</form>",q:[["Which input type is meant for email addresses?",["text","email","number"],1],["Which tag names a form field?",["<label>","<form>","<option>"],0]]},
+    {t:"Lesson 5: Styling with CSS",b:"CSS changes how things look. A rule has a selector (what to style) and declarations inside curly braces. Common properties are color (text), background, font-family, font-size, padding (space inside), margin (space outside) and border. Every element is a box: content, then padding, then border, then margin. This is the box model. Colors can be names like tomato, hex codes like #2F5BEA, or rgb() values.",pr:"Change the body background, give the heading a new font and make the border thicker.",ex:"<h1>Styled heading</h1>\n<p>CSS makes pages look good.</p>\n\n<style>\nbody { background: #fff7d6; font-family: Georgia, serif; padding: 16px; }\nh1 { color: tomato; }\np { font-size: 20px; padding: 12px; border: 2px solid tomato; border-radius: 8px; margin: 20px 0; }\n</style>",q:[["Which property adds space inside an element?",["margin","padding","gap"],1],["Which is a valid hex color?",["#2F5BEA","2F5BEA#","hex(2F5BEA)"],0]]},
+    {t:"Lesson 6: Classes and IDs",b:"A class lets you style some elements and leave others alone. Add class='note' to a tag, then write .note { } in CSS (a dot means class). An id names one unique element and is written with # in CSS. Many elements can share a class, but an id should be used only once per page. Classes are the tool you will use most.",pr:"Create a class called warning with a red background and use it on two paragraphs.",ex:"<p class='note'>Remember this.</p>\n<p>A normal paragraph.</p>\n<p class='note'>Another note.</p>\n<h2 id='title'>I am unique</h2>\n\n<style>\nbody { font-family: sans-serif; padding: 16px; }\n.note { background: #FFD23F; padding: 10px; border-radius: 6px; }\n#title { color: #2F5BEA; }\n</style>",q:[["How do you select a class in CSS?",[".name","#name","*name"],0],["How many times should one id appear on a page?",["Once","Many times","Never"],0]]},
+    {t:"Lesson 7: Layout with Flexbox",b:"Put display: flex on a container and its children line up in a row. gap adds space between them. justify-content spreads them along the row (center, space-between). align-items lines them up vertically. flex-direction: column stacks them, and flex-wrap: wrap lets them drop onto a new line.",pr:"Try justify-content: center, then flex-direction: column.",ex:"<div class='row'>\n  <div class='box'>One</div>\n  <div class='box'>Two</div>\n  <div class='box'>Three</div>\n</div>\n\n<style>\nbody { font-family: sans-serif; padding: 12px; }\n.row { display: flex; gap: 12px; justify-content: space-between; }\n.box { background: #2F5BEA; color: #fff; padding: 20px; border-radius: 8px; }\n</style>",q:[["Which line makes a flex container?",["display: flex;","flex: container;","layout: row;"],0],["What does gap do?",["Adds space between items","Changes the font","Adds a border"],0]]},
+    {t:"Lesson 8: Layout with Grid",b:"Grid builds rows and columns. display: grid turns it on and grid-template-columns sets the columns. repeat(3, 1fr) means three equal columns. gap adds space. Use grid for page layouts and galleries, and flexbox for a single row or column of items.",pr:"Change to 2 columns, then make box A take two columns with grid-column: span 2.",ex:"<div class='grid'>\n  <div class='box'>A</div>\n  <div class='box'>B</div>\n  <div class='box'>C</div>\n  <div class='box'>D</div>\n  <div class='box'>E</div>\n  <div class='box'>F</div>\n</div>\n\n<style>\nbody { font-family: sans-serif; padding: 12px; }\n.grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }\n.box { background: #14213D; color: #fff; padding: 20px; border-radius: 8px; text-align: center; }\n</style>",q:[["What does repeat(3, 1fr) create?",["Three equal columns","Three rows only","Three colors"],0],["Which property turns on grid?",["display: grid;","grid: on;","layout: grid;"],0]]},
+    {t:"Lesson 9: Responsive design for phones",b:"Most visitors use phones, so a page must fit small screens. Use relative sizes like percentages, and a media query to change the layout at a certain width. Here the cards are stacked by default and switch to a row when the screen is at least 400px wide. Your phone's Result panel is narrow, so change 400px to 250px to see the switch. On a computer, widen the window instead.",pr:"Change 400px to 250px and watch the cards switch to a row. Then add a third card.",ex:"<div class='cards'>\n  <div class='card'>Card one</div>\n  <div class='card'>Card two</div>\n</div>\n\n<style>\nbody { font-family: sans-serif; padding: 12px; }\n.cards { display: flex; flex-direction: column; gap: 12px; }\n.card { background: #FFD23F; padding: 24px; border-radius: 8px; }\n@media (min-width: 400px) {\n  .cards { flex-direction: row; }\n  .card { flex: 1; }\n}\n</style>",q:[["What is a media query used for?",["Playing videos","Changing styles at certain screen sizes","Adding images"],1],["Why design for phones first?",["Most visitors use phones","Phones cannot read CSS","It is required by law"],0]]},
+    {t:"Lesson 10: Final project, build your own website",b:"Now you put everything together. Below is a starter personal website with a header, an about section, a list of services and a footer. Replace the text with your own details, change the colors, add an image and a contact section, and make it yours. When it looks good, move to the last lesson to publish it.",pr:"Replace the name and services with your own, choose new colors and add one extra section.",ex:"<header>\n  <h1>Amaka Designs</h1>\n  <p>Affordable logos and flyers in Lagos</p>\n</header>\n\n<section>\n  <h2>About me</h2>\n  <p>I help small businesses look professional.</p>\n</section>\n\n<section>\n  <h2>Services</h2>\n  <ul>\n    <li>Logo design</li>\n    <li>Flyers and posters</li>\n    <li>Social media graphics</li>\n  </ul>\n</section>\n\n<footer>Contact: 0700 000 0000</footer>\n\n<style>\nbody { margin: 0; font-family: sans-serif; color: #14213D; }\nheader { background: #14213D; color: #fff; padding: 28px 20px; }\nheader p { color: #FFD23F; margin: 0; }\nsection { padding: 16px 20px; }\nh2 { color: #2F5BEA; }\nfooter { background: #2F5BEA; color: #fff; padding: 14px 20px; }\n</style>",q:[["Which tag groups the main areas of a page?",["<section>","<br>","<hr>"],0],["Where can small pages keep their CSS?",["Inside a <style> tag","Inside <title>","Inside <a>"],0]]},
+    {t:"Lesson 11: Publish your website",b:"Your website is just files, so publishing means putting them on a host. Name your main file index.html. Option 1, Netlify Drop: go to app.netlify.com/drop and drag your file or folder in. Option 2, GitHub Pages: create a public repository, upload index.html, then open Settings, then Pages, and choose the main branch. Within minutes you get a free link you can share on WhatsApp. A custom address such as yourname.com is optional and costs a small yearly fee.",pr:"Publish your final project and send us the link on WhatsApp.",ex:"<h1>My site is live!</h1>\n<p>index.html is the main file of every website.</p>\n<ol>\n  <li>Name your file index.html</li>\n  <li>Upload it to a host</li>\n  <li>Share your link</li>\n</ol>",q:[["What should your main file be called?",["home.txt","index.html","site.css"],1],["Can you host a public site on GitHub Pages for free?",["Yes","No, always paid","Only on weekends"],0]]}
   ]
 };
 /* =========================== */
@@ -200,9 +269,20 @@ $("wa").href="https://wa.me/"+CONFIG.whatsapp;
 $("mail").addEventListener("click",function(){track("click_email")});
 $("wa").addEventListener("click",function(){track("click_whatsapp")});
 $("plans").innerHTML=CONFIG.plans.map(function(p){return '<div class="plan"><h3>'+esc(p.name)+'</h3><div class="price">'+naira(p.price)+'</div><p>'+esc(p.text)+'</p></div>'}).join("");
+(function(){
+  var pm=CONFIG.payment||{},h='<h3>How to pay</h3><ol style="margin:0 0 10px;padding-left:20px"><li>Message us on WhatsApp to book your session or pack.</li><li>Make your payment.</li><li>Send your proof of payment.</li><li>Receive your class link and time.</li></ol>';
+  h+=pm.accountNumber?'<p style="margin:0"><b>Bank:</b> '+esc(pm.bank)+'<br><b>Account name:</b> '+esc(pm.accountName)+'<br><b>Account number:</b> '+esc(pm.accountNumber)+'</p>':'<p class="muted" style="margin:0">We send our payment details on WhatsApp when you book.</p>';
+  $("pay").innerHTML=h;
+})();
 $("spots").innerHTML=left>0?'<b>'+left+' of '+CONFIG.promoSpots+' spots left.</b> Get one free 1-hour live session worth '+naira(CONFIG.plans[0].price)+'.':'All free spots are taken. Join the waiting list on WhatsApp.';
 $("promoBar").innerHTML=left>0?'Free lesson for the first '+CONFIG.promoSpots+' students: only '+left+' left. <a href="#free">Claim yours</a>':'Free spots are full. See our <a href="#tutoring">tutoring plans</a>.';
 
+function quizHtml(l,i){
+  if(!l.q)return "";
+  return '<h3 style="margin-top:6px">Quick quiz</h3>'+l.q.map(function(q,j){
+    return '<p style="margin-bottom:4px"><b>'+(j+1)+'. '+esc(q[0])+'</b></p>'+q[1].map(function(o,k){return '<label class="qo"><input type="radio" name="q'+i+'_'+j+'" value="'+k+'">'+esc(o)+'</label>'}).join("");
+  }).join("")+'<p><button class="btn alt" data-q="'+i+'">Check answers</button></p><p class="muted" id="qr'+i+'"></p>';
+}
 var DK="ev_done",memD=[];
 function getD(){try{return JSON.parse(localStorage.getItem(DK)||"[]")}catch(e){return memD}}
 function setD(d){memD=d;try{localStorage.setItem(DK,JSON.stringify(d))}catch(e){}}
@@ -214,7 +294,7 @@ function renderLessons(openIdx){
     if(i>=CONFIG.freeLessons)return '<div class="lock">Locked: '+esc(l.t)+' <a href="https://wa.me/'+CONFIG.whatsapp+'">Unlock on WhatsApp</a></div>';
     if(i>0&&done.indexOf(i-1)<0)return '<div class="lock">Locked: '+esc(l.t)+'. Finish lesson '+i+' first.</div>';
     var d=done.indexOf(i)>-1;
-    return '<details'+(i===openIdx?' open':'')+'><summary>'+(d?'✓ ':'')+esc(l.t)+'</summary><p>'+esc(l.b)+'</p><pre>'+esc(l.ex)+'</pre>'+(l.pr?'<p><b>Practice:</b> '+esc(l.pr)+'</p>':'')+'<button class="btn" data-i="'+i+'">Try it</button> <button class="btn alt" data-c="'+i+'">'+(d?'Completed':'Mark as complete')+'</button></details>';
+    return '<details'+(i===openIdx?' open':'')+'><summary>'+(d?'✓ ':'')+esc(l.t)+'</summary><p style="white-space:pre-line">'+esc(l.b)+'</p><pre>'+esc(l.ex)+'</pre>'+(l.pr?'<p><b>Practice:</b> '+esc(l.pr)+'</p>':'')+quizHtml(l,i)+'<button class="btn" data-i="'+i+'">Try it</button> <button class="btn alt" data-c="'+i+'">'+(d?'Completed':'Mark as complete')+'</button></details>';
   }).join("");
 }
 var first=getD().length;renderLessons(first<CONFIG.lessons.length?first:-1);
@@ -235,6 +315,12 @@ $("reset").addEventListener("click",function(){put(START)});
 $("lessonList").addEventListener("click",function(e){
   var t=e.target;
   if(t.dataset.i!==undefined){track("lesson_try",{lesson:+t.dataset.i+1});put(CONFIG.lessons[+t.dataset.i].ex);document.querySelector(".lab").scrollIntoView({behavior:"smooth",block:"center"});}
+  else if(t.dataset.q!==undefined){
+    var qi=+t.dataset.q,qs=CONFIG.lessons[qi].q,sc=0,an=0;
+    qs.forEach(function(q,j){var c=document.querySelector('input[name="q'+qi+'_'+j+'"]:checked');if(c){an++;if(+c.value===q[2])sc++}});
+    $("qr"+qi).textContent=an<qs.length?"Answer every question first.":(sc===qs.length?"Perfect, "+sc+" out of "+qs.length+". You can mark this lesson complete.":"You got "+sc+" out of "+qs.length+". Review the lesson and try again.");
+    if(an===qs.length)track("quiz_check",{lesson:qi,score:sc});
+  }
   else if(t.dataset.c!==undefined){
     var i=+t.dataset.c,d=getD();track("lesson_complete",{lesson:i+1});
     if(d.indexOf(i)<0)d.push(i);
@@ -257,10 +343,11 @@ function route(){
   $("admin").style.display=on?"block":"none";
   if(on)$("admin").scrollIntoView();
   $("login").style.display=authed?"none":"block";$("panel").style.display=authed?"block":"none";
+  $("board").classList.toggle("on",authed);if(authed&&location.hash==="#board")setTimeout(fit,60);
 }
 window.addEventListener("hashchange",route);route();
 $("enter").addEventListener("click",function(){
-  if($("pin").value===CONFIG.adminPin){authed=true;$("pin").value="";$("bad").textContent="";route();draw()}
+  if($("pin").value===CONFIG.adminPin){authed=true;$("pin").value="";$("bad").textContent="";route();draw();location.hash="#board"}
   else $("bad").textContent="Wrong PIN. Try again.";
 });
 $("out2").addEventListener("click",function(){authed=false;route()});
@@ -286,6 +373,61 @@ $("cp").addEventListener("click",function(){
   var t=$("snip").textContent;
   if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){$("cp").textContent="Copied"});
 });
+
+/* Lecture Board (admin only) */
+var bc=$("bcv"),cx=bc.getContext("2d"),pen=false,eras=false,col="#FF4D4D",drawing=false,last=null,snap=[];
+var COLS=["#FF4D4D","#FFD23F","#4ADE9A","#2F5BEA","#FFFFFF","#000000"];
+$("cols").innerHTML=COLS.map(function(c,i){return '<button class="sw'+(i===0?' sel':'')+'" data-col="'+c+'" style="background:'+c+'" aria-label="Pen color '+c+'"></button>'}).join("");
+$("bsel").innerHTML='<option value="x">Blank page</option>'+CONFIG.lessons.map(function(l,i){return '<option value="'+i+'">'+esc(l.t)+'</option>'}).join("");
+var NOTES={};try{NOTES=JSON.parse(localStorage.getItem("ev_notes")||"{}")}catch(e){}
+function loadBoard(){
+  var v=$("bsel").value;
+  $("bcode").value=v==="x"?"":CONFIG.lessons[+v].ex;
+  $("bout").srcdoc=$("bcode").value;
+  $("bnotes").value=NOTES[v]||"";
+}
+function fit(){
+  var r=$("bstage").getBoundingClientRect();if(!r.width)return;
+  var d=bc.width>0?bc.toDataURL():"",im=new Image();
+  bc.width=Math.round(r.width);bc.height=Math.round(r.height);snap=[];
+  if(d){im.onload=function(){cx.drawImage(im,0,0,bc.width,bc.height)};im.src=d}
+}
+function pt(e){var r=bc.getBoundingClientRect();return{x:(e.clientX-r.left)*bc.width/r.width,y:(e.clientY-r.top)*bc.height/r.height}}
+function seg(a,b){
+  cx.globalCompositeOperation=eras?"destination-out":"source-over";
+  cx.strokeStyle=col;cx.lineWidth=(+$("bsz").value)*(eras?4:1);cx.lineCap="round";cx.lineJoin="round";
+  cx.beginPath();cx.moveTo(a.x,a.y);cx.lineTo(b.x+.01,b.y);cx.stroke();
+}
+bc.addEventListener("pointerdown",function(e){
+  if(!pen)return;e.preventDefault();drawing=true;bc.setPointerCapture(e.pointerId);
+  try{snap.push(cx.getImageData(0,0,bc.width,bc.height));if(snap.length>20)snap.shift()}catch(x){}
+  last=pt(e);seg(last,last);
+});
+bc.addEventListener("pointermove",function(e){if(!drawing)return;var p=pt(e);seg(last,p);last=p});
+["pointerup","pointercancel"].forEach(function(n){bc.addEventListener(n,function(){drawing=false})});
+$("bsel").addEventListener("change",loadBoard);
+$("bcode").addEventListener("input",function(){$("bout").srcdoc=$("bcode").value});
+$("bnotes").addEventListener("input",function(){NOTES[$("bsel").value]=$("bnotes").value;try{localStorage.setItem("ev_notes",JSON.stringify(NOTES))}catch(e){}});
+$("bpen").addEventListener("click",function(){
+  pen=!pen;this.textContent="Pen: "+(pen?"on":"off");this.classList.toggle("on",pen);
+  bc.style.pointerEvents=pen?"auto":"none";
+});
+$("ber").addEventListener("click",function(){eras=!eras;this.classList.toggle("on",eras);if(eras&&!pen)$("bpen").click()});
+$("cols").addEventListener("click",function(e){
+  var c=e.target.dataset.col;if(!c)return;col=c;eras=false;$("ber").classList.remove("on");
+  document.querySelectorAll(".sw").forEach(function(b){b.classList.toggle("sel",b===e.target)});
+  if(!pen)$("bpen").click();
+});
+$("bun").addEventListener("click",function(){var s=snap.pop();if(s&&s.width===bc.width&&s.height===bc.height){cx.globalCompositeOperation="source-over";cx.putImageData(s,0,0)}});
+$("bclr").addEventListener("click",function(){try{snap.push(cx.getImageData(0,0,bc.width,bc.height))}catch(x){}cx.clearRect(0,0,bc.width,bc.height)});
+$("bsave").addEventListener("click",function(){var a=document.createElement("a");a.href=bc.toDataURL("image/png");a.download="board-drawing.png";a.click()});
+$("bwb").addEventListener("click",function(){var on=$("bstage").classList.toggle("wb");this.classList.toggle("on",on)});
+$("bpresent").addEventListener("click",function(){
+  var on=$("board").classList.toggle("full");this.textContent=on?"Exit":"Present";
+  setTimeout(fit,80);
+});
+window.addEventListener("resize",function(){if($("board").classList.contains("on"))fit()});
+loadBoard();
 </script>
 </body>
 </html>
