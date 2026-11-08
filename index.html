@@ -68,6 +68,7 @@ th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line)}
 @keyframes ltr{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
 .fl{display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px 16px;padding:10px 20px 36px;font-size:.85rem;color:var(--muted)}
 @media (prefers-reduced-motion:reduce){.ticker span{animation:none;display:block;text-align:center;white-space:normal}}
+#ccv{display:block;max-width:100%;height:auto;border:1.5px solid var(--line);border-radius:8px;margin:14px 0}
 input[type=radio]{width:auto;display:inline;margin:0 10px 0 0}
 .qo{font-weight:400;margin:0 0 6px;display:block}
 .faq details{margin-bottom:8px}
@@ -102,7 +103,7 @@ function track(n,p){try{gtag("event",n,p||{})}catch(e){}}
 <body>
 <div class="promo" id="promoBar"></div>
 <div class="wrap">
-<nav><span class="brand"><span class="logo">EV</span>Ebene-Vento Technology</span><a href="#lessons">Lessons</a><a href="#tutoring">Tutoring</a><a href="#free">Free spots</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></nav>
+<nav><span class="brand"><span class="logo">EV</span>Ebene-Vento Technology</span><a href="#lessons">Lessons</a><a href="#tutoring">Tutoring</a><a href="#certificate">Certificate</a><a href="#free">Free spots</a><a href="#faq">FAQ</a><a href="#contact">Contact</a></nav>
 
 <section id="board">
 <h2>Lecture Board <span class="muted" style="font-size:1rem;font-family:'IBM Plex Sans',sans-serif;font-weight:400">(admin only)</span></h2>
@@ -130,7 +131,7 @@ function track(n,p){try{gtag("event",n,p||{})}catch(e){}}
 
 <div class="hero">
 <h1>Learn to build <em>websites.</em></h1>
-<p>Edit the code on the left and watch the page update on the right. Break it, fix it, and learn what each line does. No sign-up needed.</p>
+<p>Edit the code on the left and watch the page update on the right. Break it, fix it, and learn what each line does. No sign-up needed. The lessons are free; the certificate and 1-on-1 sessions are paid.</p>
 <div class="lab">
 <div><header><span>Your code</span><button class="btn alt" id="reset" style="padding:.1em .7em">Reset</button></header>
 <textarea id="code" spellcheck="false" aria-label="HTML and CSS editor"></textarea></div>
@@ -153,13 +154,32 @@ function track(n,p){try{gtag("event",n,p||{})}catch(e){}}
 
 <section id="tutoring">
 <h2>1-on-1 tutoring</h2>
+<p class="muted">The lessons are free. These paid sessions give you personal live help from a teacher.</p>
 <div class="plans" id="plans"></div>
 <div class="card" id="pay" style="margin:16px 0"></div>
 <p class="muted">We are a full stack team, so we can also help with JavaScript, PHP, Python and databases.</p>
 </section>
 
+<section id="certificate">
+<h2>Get your certificate</h2>
+<p class="muted">The lessons are free. A verified certificate of completion is optional and costs <b id="cprice"></b>.</p>
+<div class="card" id="cstat"></div>
+<form class="card" id="creq" style="display:none;margin-top:14px">
+<label>Name as it should appear on the certificate<input name="n" required></label>
+<label>Link to your final project (your published site)<input name="u" type="url" required placeholder="https://"></label>
+<button class="btn" type="submit">Request my certificate</button>
+<p class="muted" style="margin:10px 0 0;font-size:.9rem">We review your project and then send payment details. After payment you receive your certificate with a verification ID.</p>
+</form>
+<h3 style="margin-top:28px">Verify a certificate</h3>
+<form class="card" id="vf">
+<label>Certificate ID<input name="id" placeholder="EVT-2026-AB12" required autocomplete="off"></label>
+<button class="btn alt" type="submit">Verify</button>
+<p id="vres" style="margin:10px 0 0"></p>
+</form>
+</section>
+
 <section id="free">
-<div class="free"><b>First 5 students learn free</b><p id="spots" style="margin:.4em 0 0"></p></div>
+<div class="free"><b>First 5 students get a free live session</b><p id="spots" style="margin:.4em 0 0"></p></div>
 <form class="card" id="claim">
 <label>Full name<input name="n" required autocomplete="name"></label>
 <label>Phone / WhatsApp number<input name="p" type="tel" required autocomplete="tel"></label>
@@ -171,6 +191,9 @@ function track(n,p){try{gtag("event",n,p||{})}catch(e){}}
 
 <section id="faq" class="faq">
 <h2>Frequently asked questions</h2>
+<details><summary>Are the lessons really free?</summary><p>Yes. All 12 lessons, quizzes and the live editor are free for everyone. You only pay if you want a certificate or personal 1-on-1 sessions.</p></details>
+<details><summary>How do I get a certificate?</summary><p>Complete all 12 lessons and pass every quiz, publish your final project, then request your certificate on this page. We review your project, you pay the certificate fee, and we send you a certificate with a verification ID.</p></details>
+<details><summary>How can someone check my certificate is real?</summary><p>Every certificate has a unique ID. Anyone can enter it in the Verify a certificate box on this page to confirm your name and the date.</p></details>
 <details><summary>Do I need any experience?</summary><p>No. The lessons start from zero and go step by step.</p></details>
 <details><summary>What do I need to learn?</summary><p>A phone or computer with internet. You can practise right here in the live editor, with nothing to install.</p></details>
 <details><summary>How are the classes held?</summary><p>Live online on Google Meet or WhatsApp video. We agree a time that suits you when you book.</p></details>
@@ -218,6 +241,20 @@ function track(n,p){try{gtag("event",n,p||{})}catch(e){}}
 </form>
 <pre id="snip" style="display:none;margin-top:14px"></pre>
 <button class="btn alt" id="cp" style="display:none">Copy</button>
+<h3 style="margin-top:28px">Certificate maker</h3>
+<p class="muted">Issue a certificate only after you have reviewed the student's project and received payment.</p>
+<form class="card" id="cm">
+<label>Student name<input name="n" required></label>
+<label>Date of issue<input name="d" type="date"></label>
+<button class="btn" type="submit">Generate certificate</button>
+</form>
+<div id="cout" style="display:none">
+<canvas id="ccv" width="1600" height="1130"></canvas>
+<p><button class="btn" id="cdl">Download certificate (PNG)</button></p>
+<p class="muted">Paste this line into <code>certs</code> in the CONFIG block and upload the site again, otherwise the ID will not verify:</p>
+<pre id="csn"></pre>
+<button class="btn alt" id="ccp">Copy line</button>
+</div>
 <p><button class="btn alt" id="out2">Log out</button></p>
 </div>
 </section>
@@ -235,7 +272,11 @@ var CONFIG={
   promoSpots:5,             /* free spots offered */
   claimed:0,                /* how many are already taken */
   freeLessons:12,           /* lessons open to everyone; lower it (e.g. 8) to lock the rest for paying students */
-  payment:{bank:"",accountName:"Ebene-Vento Technology",accountNumber:""},  /* fill in to show payment details on the site */
+  payment:{bank:"",accountName:"Ebene-Vento Technology",accountNumber:""},
+  certPrice:3000,           /* certificate fee in naira */
+  siteUrl:"greenhood1.github.io/Lesson",
+  /* Paste each issued certificate here (the Certificate maker in Admin gives you the line) */
+  certs:[],  /* fill in to show payment details on the site */
   plans:[
     {name:"Single session",price:5000,text:"One hour, live, on any HTML or CSS question."},
     {name:"Beginner pack",price:18000,text:"4 sessions from zero to your first finished page."},
@@ -275,7 +316,7 @@ $("plans").innerHTML=CONFIG.plans.map(function(p){return '<div class="plan"><h3>
   $("pay").innerHTML=h;
 })();
 $("spots").innerHTML=left>0?'<b>'+left+' of '+CONFIG.promoSpots+' spots left.</b> Get one free 1-hour live session worth '+naira(CONFIG.plans[0].price)+'.':'All free spots are taken. Join the waiting list on WhatsApp.';
-$("promoBar").innerHTML=left>0?'Free lesson for the first '+CONFIG.promoSpots+' students: only '+left+' left. <a href="#free">Claim yours</a>':'Free spots are full. See our <a href="#tutoring">tutoring plans</a>.';
+$("promoBar").innerHTML=left>0?'Lessons are free for everyone. The first '+CONFIG.promoSpots+' students also get a free live session: only '+left+' left. <a href="#free">Claim yours</a>':'Lessons are free for everyone. Free live spots are full: see our <a href="#tutoring">1-on-1 plans</a>.';
 
 function quizHtml(l,i){
   if(!l.q)return "";
@@ -319,12 +360,12 @@ $("lessonList").addEventListener("click",function(e){
     var qi=+t.dataset.q,qs=CONFIG.lessons[qi].q,sc=0,an=0;
     qs.forEach(function(q,j){var c=document.querySelector('input[name="q'+qi+'_'+j+'"]:checked');if(c){an++;if(+c.value===q[2])sc++}});
     $("qr"+qi).textContent=an<qs.length?"Answer every question first.":(sc===qs.length?"Perfect, "+sc+" out of "+qs.length+". You can mark this lesson complete.":"You got "+sc+" out of "+qs.length+". Review the lesson and try again.");
-    if(an===qs.length)track("quiz_check",{lesson:qi,score:sc});
+    if(an===qs.length){track("quiz_check",{lesson:qi,score:sc});if(sc===qs.length){var qp=getQ();if(qp.indexOf(qi)<0)qp.push(qi);setQ(qp);renderCert()}}
   }
   else if(t.dataset.c!==undefined){
     var i=+t.dataset.c,d=getD();track("lesson_complete",{lesson:i+1});
     if(d.indexOf(i)<0)d.push(i);
-    setD(d);renderLessons(i+1<CONFIG.lessons.length?i+1:-1);
+    setD(d);renderLessons(i+1<CONFIG.lessons.length?i+1:-1);renderCert();
   }
 });
 put(START);
@@ -428,6 +469,69 @@ $("bpresent").addEventListener("click",function(){
 });
 window.addEventListener("resize",function(){if($("board").classList.contains("on"))fit()});
 loadBoard();
+
+/* Certificate */
+var memQ=[];
+function getQ(){try{return JSON.parse(localStorage.getItem("ev_quiz")||"[]")}catch(e){return memQ}}
+function setQ(q){memQ=q;try{localStorage.setItem("ev_quiz",JSON.stringify(q))}catch(e){}}
+$("cprice").textContent=naira(CONFIG.certPrice);
+function renderCert(){
+  var n=CONFIG.lessons.length,d=getD().length,q=getQ().length,ok=d>=n&&q>=n;
+  $("cstat").innerHTML='<p style="margin:0 0 6px"><b>Lessons completed:</b> '+d+' of '+n+'</p><p style="margin:0 0 6px"><b>Quizzes passed:</b> '+q+' of '+n+'</p><p style="margin:0" class="muted">'+(ok?'<span style="color:var(--ok)"><b>Unlocked.</b></span> Publish your final project, then request your certificate below.':'Complete every lesson and pass every quiz to unlock your certificate request.')+'</p>';
+  $("creq").style.display=ok?"block":"none";
+}
+$("creq").addEventListener("submit",function(e){
+  e.preventDefault();var f=e.target;track("cert_request");
+  var m="Hello Ebene-Vento Technology, I have completed all "+CONFIG.lessons.length+" lessons and passed every quiz. I would like to request my certificate.\nName: "+f.n.value+"\nFinal project: "+f.u.value;
+  window.open("https://wa.me/"+CONFIG.whatsapp+"?text="+encodeURIComponent(m),"_blank");
+});
+$("vf").addEventListener("submit",function(e){
+  e.preventDefault();var id=e.target.querySelector("input").value.trim().toUpperCase(),r=$("vres");
+  var c=CONFIG.certs.filter(function(x){return x.id===id})[0];
+  r.innerHTML=c?'<span style="color:var(--ok)"><b>Valid certificate.</b></span> Issued to <b>'+esc(c.n)+'</b> on '+esc(c.d)+' for the HTML &amp; CSS Beginner Course.':'No certificate found with that ID. Check the ID and try again, or contact us.';
+  track("cert_verify",{found:!!c});
+});
+renderCert();
+
+/* Certificate maker (admin) */
+function fitText(ctx,t,font,max,start){var sz=start;do{ctx.font=font.replace("{s}",sz);sz-=4}while(ctx.measureText(t).width>max&&sz>30);}
+function drawCert(cv,name,id,date){
+  var c=cv.getContext("2d"),W=cv.width,H=cv.height,N="#14213D",B="#2F5BEA",Y="#FFD23F",G="#51607A";
+  var F='"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif';
+  c.fillStyle="#FFFFFF";c.fillRect(0,0,W,H);
+  c.strokeStyle=N;c.lineWidth=18;c.strokeRect(36,36,W-72,H-72);
+  c.strokeStyle=Y;c.lineWidth=5;c.strokeRect(66,66,W-132,H-132);
+  c.fillStyle=B;c.fillRect(120,120,70,70);
+  c.fillStyle="#fff";c.font="800 30px "+F;c.textAlign="center";c.textBaseline="middle";c.fillText("EV",155,156);
+  c.fillStyle=N;c.font="800 40px "+F;c.textAlign="left";c.fillText("Ebene-Vento Technology",212,156);
+  c.textAlign="center";
+  c.fillStyle=N;c.font="800 78px "+F;c.fillText("CERTIFICATE OF COMPLETION",W/2,330);
+  c.fillStyle=G;c.font="400 38px "+F;c.fillText("This certifies that",W/2,430);
+  c.fillStyle=B;fitText(c,name,"800 {s}px "+F,1150,120);c.fillText(name,W/2,545);
+  c.fillStyle=Y;c.fillRect(W/2-400,600,800,6);
+  c.fillStyle=G;c.font="400 38px "+F;c.fillText("has successfully completed the",W/2,680);
+  c.fillStyle=N;c.font="800 60px "+F;c.fillText("HTML & CSS Beginner Course",W/2,765);
+  c.fillStyle=G;c.font="400 34px "+F;c.fillText("12 lessons, quizzes and a reviewed final project",W/2,830);
+  c.textAlign="left";c.fillStyle=N;c.font="500 32px "+F;c.fillText("Date of issue: "+date,150,980);
+  c.textAlign="right";c.fillText("Certificate ID: "+id,W-150,980);
+  c.textAlign="center";c.fillStyle=G;c.font="400 28px "+F;c.fillText("Verify at "+CONFIG.siteUrl+" (Verify a certificate)",W/2,1040);
+  c.fillStyle=N;c.fillRect(W/2-190,925,380,3);c.font="500 28px "+F;c.fillText("Ebene-Vento Technology",W/2,905);
+}
+function genId(){var a="ABCDEFGHJKMNPQRSTUVWXYZ23456789",x="";for(var i=0;i<4;i++)x+=a[Math.floor(Math.random()*a.length)];return "EVT-"+new Date().getFullYear()+"-"+x}
+$("cm").d.value=new Date().toISOString().slice(0,10);
+$("cm").addEventListener("submit",function(e){
+  e.preventDefault();var f=e.target,name=f.n.value.trim();
+  var dt=f.d.value?new Date(f.d.value+"T12:00:00"):new Date();
+  var ds=dt.toLocaleDateString("en-GB",{day:"2-digit",month:"long",year:"numeric"});
+  var id;do{id=genId()}while(CONFIG.certs.some(function(x){return x.id===id}));
+  var go=function(){drawCert($("ccv"),name,id,ds)};
+  (document.fonts&&document.fonts.load?document.fonts.load('800 60px "Bricolage Grotesque"').then(go,go):Promise.resolve().then(go));
+  $("csn").textContent="{id:"+JSON.stringify(id)+",n:"+JSON.stringify(name)+",d:"+JSON.stringify(ds)+"},";
+  $("cout").style.display="block";
+  $("cdl").dataset.name=name.replace(/[^a-z0-9]+/gi,"-");$("cdl").dataset.id=id;
+});
+$("cdl").addEventListener("click",function(){var a=document.createElement("a");a.href=$("ccv").toDataURL("image/png");a.download="certificate-"+this.dataset.id+"-"+this.dataset.name+".png";a.click()});
+$("ccp").addEventListener("click",function(){var t=$("csn").textContent;if(navigator.clipboard)navigator.clipboard.writeText(t).then(function(){$("ccp").textContent="Copied"})});
 </script>
 </body>
 </html>
